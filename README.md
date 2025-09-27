@@ -6,7 +6,7 @@
 
 TalentMatch AI is a Django-based web application that uses **Natural Language Processing (NLP) and Machine Learning (ML)** to analyze and rank resumes based on job descriptions. It helps recruiters efficiently filter and prioritize resumes based on skills, experience, and qualifications.  
 
-![TalentMatch AI Dashboard](screenshots/dashboard.png)
+![TalentMatch AI Dashboard](https://github.com/aniketsingh762/TalentMatchAI/blob/main/screenshots/dark-mode.png)
 *Modern UI with dark mode support*
 
 ## **🚀 Features**  
