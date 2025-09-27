@@ -1,43 +1,137 @@
-<div>
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">📊 Resume Analysis</h3>
-
-    <!-- Rank -->
-    <div class="mb-4">
-        <p class="text-lg font-medium text-gray-700">
-            🏅 <span class="text-indigo-600 font-semibold">Match Score:</span> {{ data.rank }}
-        </p>
-    </div>
-
-    <!-- Skills -->
-    <div class="mb-4">
-        <p class="text-lg font-medium text-gray-700">💡 Key Skills:</p>
-        <div class="flex flex-wrap gap-2">
-            {% for skill in data.skills %}
-                <span class="bg-indigo-100 text-indigo-700 text-sm font-medium px-3 py-1 rounded-lg">✅ {{ skill }}</span>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Experience -->
-    <div class="mb-4">
-        <p class="text-lg font-medium text-gray-700">
-            🏆 <span class="text-indigo-600 font-semibold">Experience:</span> {{ data.experience }} {% if "years" not in data.experience %}years {% else %}{% endif %}
-        </p>
-    </div>
-
-    <!-- Project Categories -->
-    <div class="mb-4">
-        <p class="text-lg font-medium text-gray-700">📂 Relevant Project Categories:</p>
-        <ul class="list-disc pl-5 text-gray-600">
-            {% for category in data.project_categories %}
-                <li class="py-1">📌 {{ category }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Close Button -->
-    <button onclick="hideResult()"
-        class="mt-4 w-full bg-red-500 text-white py-2 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200">
-        ❌ Close Result
+<div class="result-card card p-6 rounded-xl shadow-lg">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+      📊 Resume Analysis Results
+    </h3>
+    <button
+      onclick="hideResult()"
+      class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+    >
+      <i class="fas fa-times"></i>
     </button>
+  </div>
+
+  <!-- Match Score with visual indicator -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-2">
+      <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+        🏅 Match Score
+      </p>
+      <span class="text-2xl font-bold text-indigo-600">{{ data.rank }}</span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+      <div class="bg-indigo-600 h-4 rounded-full progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- Skills with tags and search -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-3">
+      <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+        💡 Key Skills
+      </p>
+      <div class="relative">
+        <input
+          type="text"
+          id="skillSearch"
+          placeholder="Search skills..."
+          class="px-3 py-1 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        />
+        <i class="fas fa-search absolute right-3 top-2 text-gray-400"></i>
+      </div>
+    </div>
+    <div id="skillsContainer" class="flex flex-wrap gap-2">
+      {% for skill in data.skills %}
+      <span
+        class="skill-tag bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-lg dark:bg-indigo-900 dark:text-indigo-200"
+      >
+        ✅ {{ skill }}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Experience with icon -->
+  <div class="mb-6">
+    <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+      🏆 Experience
+    </p>
+    <div
+      class="flex items-center p-4 bg-blue-50 rounded-lg dark:bg-blue-900/30"
+    >
+      <i class="fas fa-briefcase text-blue-500 text-2xl mr-3"></i>
+      <span class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+        {{ data.experience }} {% if "years" not in data.experience %}years{%
+        endif %}
+      </span>
+    </div>
+  </div>
+
+  <!-- Project Categories with icons -->
+  <div class="mb-6">
+    <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
+      📂 Project Categories
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {% for category in data.project_categories %}
+      <div class="flex items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+        <i class="fas fa-folder-open text-indigo-500 mr-3"></i>
+        <span class="text-gray-800 dark:text-gray-200">{{ category }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex flex-wrap gap-3 mt-6">
+    <button
+      class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg shadow transition duration-200 flex items-center justify-center"
+    >
+      <i class="fas fa-download mr-2"></i> Download Report
+    </button>
+    <button
+      class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow transition duration-200 flex items-center justify-center"
+    >
+      <i class="fas fa-share-alt mr-2"></i> Share Results
+    </button>
+  </div>
 </div>
+
+<script>
+  // Set the progress bar width based on the match score
+  document.addEventListener("DOMContentLoaded", function () {
+    const rank = "{{ data.rank }}";
+    const progressBar = document.querySelector(".progress-bar-fill");
+    if (progressBar && rank) {
+      // Extract the percentage value from the rank string
+      const percentage = rank.replace("%", "");
+      progressBar.style.width = percentage + "%";
+    }
+  });
+
+  // Skill search functionality
+  document.getElementById("skillSearch").addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase();
+    const skillTags = document.querySelectorAll(".skill-tag");
+
+    skillTags.forEach((tag) => {
+      const skillText = tag.textContent.toLowerCase();
+      if (skillText.includes(searchTerm)) {
+        tag.style.display = "inline-block";
+      } else {
+        tag.style.display = "none";
+      }
+    });
+  });
+
+  // Add animation to result card
+  document.querySelector(".result-card").style.opacity = "0";
+  document.querySelector(".result-card").style.transform = "translateY(20px)";
+
+  setTimeout(() => {
+    document.querySelector(".result-card").style.transition =
+      "opacity 0.3s ease, transform 0.3s ease";
+    document.querySelector(".result-card").style.opacity = "1";
+    document.querySelector(".result-card").style.transform = "translateY(0)";
+  }, 100);
+</script>

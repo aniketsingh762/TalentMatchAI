@@ -1,72 +1,410 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TalentMatch AI - Resume Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <style>
-        /* Custom spinner */
-        .spinner {
-            border: 4px solid #f3f3f3; /* Light gray background */
-            border-top: 4px solid black; /* Black spinner */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
+      :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #818cf8;
+        --dark-bg: #1f2937;
+        --light-bg: #f9fafb;
+        --card-bg: #ffffff;
+        --text-dark: #111827;
+        --text-light: #f9fafb;
+      }
 
-        /* Animation for spinner */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      .dark-mode {
+        --dark-bg: #111827;
+        --light-bg: #1f2937;
+        --card-bg: #1f2937;
+        --text-dark: #f9fafb;
+        --text-light: #f9fafb;
+      }
+
+      body {
+        background-color: var(--light-bg);
+        color: var(--text-dark);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .dark-mode body {
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        transition: background-color 0.3s;
+      }
+
+      /* Custom spinner */
+      .spinner {
+        border: 4px solid rgba(79, 70, 229, 0.2);
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      /* Animation for spinner */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Custom select styling */
+      .custom-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+      }
+
+      .dark-mode .custom-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      }
+
+      /* File input styling */
+      .file-input-label {
+        display: block;
+        padding: 0.5rem 1rem;
+        background-color: var(--light-bg);
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .dark-mode .file-input-label {
+        background-color: var(--dark-bg);
+        border-color: #4b5563;
+      }
+
+      .file-input-label:hover {
+        background-color: #f3f4f6;
+      }
+
+      .dark-mode .file-input-label:hover {
+        background-color: #374151;
+      }
+
+      /* Button styling */
+      .btn-primary {
+        background-color: var(--primary-color);
+        transition: background-color 0.2s;
+      }
+
+      .btn-primary:hover {
+        background-color: #4338ca;
+      }
+
+      .btn-secondary {
+        background-color: #6b7280;
+        transition: background-color 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background-color: #4b5563;
+      }
+
+      /* Dark mode toggle */
+      .dark-mode-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 50;
+        background-color: var(--card-bg);
+        border: 1px solid #d1d5db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .dark-mode .dark-mode-toggle {
+        border-color: #4b5563;
+      }
+
+      /* Progress bar */
+      .progress-bar {
+        height: 8px;
+        background-color: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .dark-mode .progress-bar {
+        background-color: #374151;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      /* Filter section */
+      .filter-section {
+        background-color: #f3f4f6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .dark-mode .filter-section {
+        background-color: #374151;
+      }
+
+      /* Result card */
+      .result-card {
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .result-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .dark-mode .result-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25),
+          0 10px 10px -5px rgba(0, 0, 0, 0.1);
+      }
     </style>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-        <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">TalentMatch AI Resume Analyzer</h2>
-        <form action="{% url 'index' %}" method="POST" enctype="multipart/form-data" class="space-y-4" 
-              hx-post="{% url 'check_resume' %}" hx-target="#result-section" hx-swap="innerHTML"
-              hx-on="htmx:beforeRequest:document.getElementById('spinner').classList.remove('hidden')">
-            {% csrf_token %}
-            <div>
-                {{ form.as_p }}
-            </div>
-            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="clearPreviousResults()">
-                Check Resume
-            </button>
-        </form>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <!-- Dark mode toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+      <i class="fas fa-moon text-gray-700 dark-mode:hidden"></i>
+      <i class="fas fa-sun text-yellow-400 hidden dark-mode:block"></i>
+    </div>
 
-        <!-- Spinner Section (Initially Hidden) -->
-        <div id="spinner" class="mt-6 flex justify-center hidden">
-            <!-- Custom spinner with black color -->
-            <div class="spinner"></div>
+    <div class="card p-8 rounded-xl shadow-lg max-w-2xl w-full">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-indigo-600 mb-2">TalentMatch AI</h1>
+        <p class="text-gray-600 dark:text-gray-300">
+          AI-powered Resume Ranking System
+        </p>
+      </div>
+
+      <!-- Filter section -->
+      <div class="filter-section mb-6">
+        <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
+          <i class="fas fa-filter mr-2"></i>Filter Options
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Experience Level</label
+            >
+            <select
+              class="custom-select w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="">All Levels</option>
+              <option value="entry">Entry Level (0-2 years)</option>
+              <option value="mid">Mid Level (3-5 years)</option>
+              <option value="senior">Senior Level (6+ years)</option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Skills Focus</label
+            >
+            <select
+              class="custom-select w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value="">All Skills</option>
+              <option value="technical">Technical Skills</option>
+              <option value="soft">Soft Skills</option>
+              <option value="leadership">Leadership Skills</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <form
+        action="{% url 'index' %}"
+        method="POST"
+        enctype="multipart/form-data"
+        class="space-y-6"
+        hx-post="{% url 'check_resume' %}"
+        hx-target="#result-section"
+        hx-swap="innerHTML"
+        hx-on="htmx:beforeRequest:document.getElementById('spinner').classList.remove('hidden'); document.getElementById('progressBar').classList.remove('hidden')"
+      >
+        {% csrf_token %}
+
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Job Title</label
+          >
+          {{ form.job_title }}
         </div>
 
-        <!-- Result Section (HTMX will update this dynamically) -->
-        <div id="result-section" class="hidden mt-6"></div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Upload Resume (PDF only)</label
+          >
+          <div class="mt-1">
+            <input
+              type="file"
+              name="resume"
+              accept=".pdf"
+              required
+              id="id_resume"
+              class="hidden"
+            />
+            <label for="id_resume" class="file-input-label flex items-center">
+              <i class="fas fa-cloud-upload-alt text-indigo-500 mr-2"></i>
+              <span id="file-name" class="text-gray-500 dark:text-gray-400"
+                >Choose a file...</span
+              >
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full btn-primary text-white py-3 px-4 rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center"
+        >
+          <i class="fas fa-file-contract mr-2"></i>
+          Analyze Resume
+        </button>
+      </form>
+
+      <!-- Progress bar -->
+      <div id="progressBar" class="mt-6 hidden">
+        <div
+          class="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1"
+        >
+          <span>Analyzing your resume...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Spinner Section (Initially Hidden) -->
+      <div id="spinner" class="mt-6 flex justify-center hidden">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Result Section (HTMX will update this dynamically) -->
+      <div id="result-section" class="mt-6"></div>
     </div>
 
     <script>
-        // Clears the previous result before making a new request
-        function clearPreviousResults() {
-            document.getElementById('result-section').classList.add('hidden');
-            document.getElementById('result-section').innerHTML = ''; // Clear previous content
-        }
+      // Dark mode toggle
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      const darkModeIcon = darkModeToggle.querySelector("i");
 
-        // After the content is swapped, hide the spinner
-        document.addEventListener('htmx:afterSwap', function() {
-            document.getElementById('spinner').classList.add('hidden');
-            document.getElementById('result-section').classList.remove('hidden');
-        });
+      // Check for saved theme preference or respect OS setting
+      const prefersDarkScheme = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      );
+      const currentTheme = localStorage.getItem("theme");
 
-        function hideResult() {
-            document.getElementById('result-section').classList.add('hidden');
+      if (
+        currentTheme === "dark" ||
+        (!currentTheme && prefersDarkScheme.matches)
+      ) {
+        document.body.classList.add("dark-mode");
+      }
+
+      darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+
+        // Save the current theme to localStorage
+        if (document.body.classList.contains("dark-mode")) {
+          localStorage.setItem("theme", "dark");
+        } else {
+          localStorage.setItem("theme", "light");
         }
+      });
+
+      // File input handling
+      const fileInput = document.getElementById("id_resume");
+      const fileName = document.getElementById("file-name");
+
+      fileInput.addEventListener("change", function () {
+        if (this.files.length > 0) {
+          fileName.textContent = this.files[0].name;
+          fileName.classList.remove("text-gray-500", "dark:text-gray-400");
+          fileName.classList.add("text-gray-800", "dark:text-gray-200");
+        } else {
+          fileName.textContent = "Choose a file...";
+          fileName.classList.remove("text-gray-800", "dark:text-gray-200");
+          fileName.classList.add("text-gray-500", "dark:text-gray-400");
+        }
+      });
+
+      // Clears the previous result before making a new request
+      function clearPreviousResults() {
+        document.getElementById("result-section").classList.add("hidden");
+        document.getElementById("result-section").innerHTML = ""; // Clear previous content
+      }
+
+      // After the content is swapped, hide the spinner
+      document.addEventListener("htmx:afterSwap", function () {
+        document.getElementById("spinner").classList.add("hidden");
+        document.getElementById("progressBar").classList.add("hidden");
+        document.getElementById("result-section").classList.remove("hidden");
+      });
+
+      // Simulate progress bar
+      document.addEventListener("htmx:beforeRequest", function () {
+        const progressBar = document.getElementById("progressBar");
+        const progressFill = document.getElementById("progressFill");
+        const progressText = document.getElementById("progressText");
+
+        progressBar.classList.remove("hidden");
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.floor(Math.random() * 10) + 1;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+          }
+          progressFill.style.width = progress + "%";
+          progressText.textContent = progress + "%";
+        }, 200);
+      });
+
+      function hideResult() {
+        document.getElementById("result-section").classList.add("hidden");
+      }
     </script>
-</body>
+  </body>
 </html>
