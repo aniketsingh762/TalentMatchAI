@@ -58,8 +58,8 @@ TalentMatch AI is a Django-based web application that uses **Natural Language Pr
 ### **1️⃣ Clone the Repository**  
 
 ```bash
-git clone https://github.com/yourusername/Resume_Ranking_AI_by_Django.git
-cd Resume_Ranking_AI_by_Django
+git clone https://github.com/aniketsingh762/TalentMatchAI.git
+cd TalentMatchAI
 ```
 
 ### **2️⃣ Create & Activate Virtual Environment**  
